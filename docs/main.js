@@ -250,6 +250,7 @@ class QuestGenerator {
 				],
 				shape: 'pulse25',
 				isShuffle: false,
+				isMultiShape: false,
 				shiftRange: 12,
 			};
 		} else if (level < 3) {
@@ -270,26 +271,28 @@ class QuestGenerator {
 				],
 				shape: 'pulse125',
 				isShuffle: false,
+				isMultiShape: false,
 				shiftRange: 12,
 			};
 		} else if (level < 4) {
 			tmpl = {
 				baseAnsers: [
 					{
-						noteId: 45,
+						noteId: 57,
 					},
 					{
-						noteId: 45 + 3,
+						noteId: 57 + 3,
 					},
 					{
-						noteId: 45 + 6,
+						noteId: 57 + 6,
 					},
 					{
-						noteId: 45 + 9,
+						noteId: 57 + 9,
 					},
 				],
 				shape: 'tri',
 				isShuffle: false,
+				isMultiShape: false,
 				shiftRange: 12,
 			};
 		} else if (level < 5) {
@@ -310,6 +313,7 @@ class QuestGenerator {
 				],
 				shape: 'square',
 				isShuffle: false,
+				isMultiShape: false,
 				shiftRange: 12,
 			};
 		} else {
@@ -333,6 +337,7 @@ class QuestGenerator {
 				],
 				shape: 'random',
 				isShuffle: true,
+				isMultiShape: true,
 				shiftRange: 36,
 			};
 		}
@@ -340,15 +345,22 @@ class QuestGenerator {
 		const shift = Math.floor((Math.random() * tmpl.shiftRange) - tmpl.shiftRange / 2);
 		const correctIndex = Math.floor(Math.random() * tmpl.baseAnsers.length);
 		let shape = tmpl.shape;
+		const shapes = [
+			'pulse125',
+			'pulse25',
+			'square',
+			'tri',
+		];
+		QuestGenerator.shuffle(shapes);
 		if (tmpl.shape === 'random') {
-			const shapes = [
-				'pulse125',
-				'pulse25',
-				'square',
-				'tri',
-			];
-			shape = shapes[Math.floor(Math.random() * shapes.length)];
+			shape = shapes.shift();
+		} else {
+			const shapeIndex = shapes.indexOf(shape);
+			shapes.splice(shapeIndex, 1);
 		}
+		const subjectShape =  tmpl.isMultiShape ?
+			shapes.shift() :
+			shape;
 
 
 		const answerArr = [];
@@ -370,10 +382,17 @@ class QuestGenerator {
 			case 'pulse25': shapeName = '25%パルス波'; break;
 		}
 
+		let description = '';
+		if (tmpl.isMultiShape) {
+			description = `「${shapeName}」<br>この音と同じ音程の音はどれ？`;
+		} else {
+			description = `「${shapeName}」<br>この音と同じ音はどれ？`;
+		}
+
 		const subject = {
 			noteId: answerArr[correctIndex].noteId,
-			shape: answerArr[correctIndex].shape,
-			description: `「${shapeName}」<br>この音と同じ音はどれ？`,
+			shape: subjectShape,
+			description: description,
 		};
 
 		if (tmpl.isShuffle) {
